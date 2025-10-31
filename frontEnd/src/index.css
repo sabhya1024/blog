@@ -1,0 +1,9 @@
+/* Import Tailwind CSS directly */
+@import "tailwindcss";
+
+/* Optional: add your own global styles */
+body {
+  font-family: 'Inter', sans-serif;
+  color: black;
+}
+
