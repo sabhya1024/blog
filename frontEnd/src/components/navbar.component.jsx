@@ -8,19 +8,13 @@ const Navbar = () => {
   const [searchBoxVisibility, setSearchBoxVisibility] = useState(false);
 
   return (
-    <nav className="relative flex items-center justify-between gap-4 p-4 border-b border-gray-100">
+      <nav className="relative flex items-center justify-between gap-4 p-4 border-b border-gray-100">
+          {/* logo */}
       <Link to="/" className="flex-none w-10 h-10">
         <img src={logo} className="object-contain" alt="Logo" />
-        {/* Accessibility: Added alt text */}
-      </Link>
-
-      {/* CHANGED: This is the main fix.
-        - Removed "md:show", "show", and "hide" classes.
-        - Added a template literal `${...}` to conditionally apply classes.
-        - On mobile: Toggles opacity and pointer-events based on `searchBoxVisibility`.
-        - On desktop (md:): Always sets opacity to 100 and enables pointer-events.
-        - Added `transition-all` for the animation.
-      */}
+          </Link>
+          
+          {/* search functionality */}
       <div
         className={`
           absolute bg-white w-full left-0 top-full mt-0.5 border-b border-gray-200 
@@ -33,17 +27,18 @@ const Navbar = () => {
           }
           md:opacity-100 md:pointer-events-auto
         `}>
-        {/* Added 'relative' to this parent div to correctly position the icon */}
         <div className="relative">
           <input
             type="text"
             placeholder="Search"
-            className="w-full md:w-auto bg-gray-100 p-4 pl-6 pr-[12%] md:pr-6 rounded-full placeholder:text-gray-500 md:pl-12" // Changed placeholder color
+            className="w-full md:w-auto bg-gray-100 p-4 pl-6 pr-[12%] md:pr-6 rounded-full placeholder:text-gray-500 md:pl-12" 
           />
           <CiSearch className="absolute right-[10%] md:pointer-events-none md:left-5 top-1/2 -translate-y-1/2 text-xl text-gray-500" />
         </div>
       </div>
 
+          
+          {/* search button enable or disable */}
       <div className="flex items-center gap-3 md:gap-6 ml-auto">
         <button
           className="md:hidden bg-gray-200 h-12 w-12 rounded-full flex items-center justify-center" 
