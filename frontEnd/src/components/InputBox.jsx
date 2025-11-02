@@ -18,6 +18,18 @@ const InputBox = ({ name, type, id, value, placeholder }) => {
   } else if (name === "password") {
     leftIcon = <TbLockPassword className="input-icon left-4" />;
   }
+   
+
+  let paddingLeft = "pl-4";
+  let paddingRight = "pr-4";
+
+  if (leftIcon) {
+    paddingLeft = "pl-16"; // More padding if there's a left icon
+  }
+
+  if (type === "password") {
+    paddingRight = "pr-12"; // More padding if there's a right icon
+  }
 
   return (
     <div className="relative w-full mb-4">
@@ -30,12 +42,11 @@ const InputBox = ({ name, type, id, value, placeholder }) => {
         defaultValue={value}
         id={id}
         className={`
-          input-box 
-          ${leftIcon ? "pl-16" : ""}
-          ${type === "password" ? "pr-12" : ""}
-        `}
+           input-box
+            ${paddingLeft}
+            ${paddingRight}
+             `}
       />
-
 
       {leftIcon}
 

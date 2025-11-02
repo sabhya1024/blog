@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaGoogle } from "react-icons/fa";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useRef } from "react";
+import PageAnimation from "../common/PageAnimation";
 
 const fakeApiLogin = (email, password) => {
   return new Promise((resolve, reject) => {
@@ -80,12 +81,14 @@ const UserAuth = ({ type }) => {
     // for verification.
 
   };
+  
 
   return (
-    <section className="min-h-screen flex items-center justify-center py-10 md:py-20">
-      <form className="w-[80%] max-w-[400px]" onSubmit={handleSubmit}>
-        <h1
-          className="
+    <PageAnimation keyValue={type}>
+      <section className="min-h-screen flex items-center justify-center py-10 md:py-20">
+        <form className="w-[80%] max-w-[400px]" onSubmit={handleSubmit}>
+          <h1
+            className="
             text-4xl 
             font-georgia 
             text-center 
@@ -93,63 +96,65 @@ const UserAuth = ({ type }) => {
             mb-10
             text-black
           ">
-          {type === "signin" ? "Login to your account" : "Create new account"}
-        </h1>
+            {type === "signin" ? "Login to your account" : "Create new account"}
+          </h1>
 
-        {type !== "signin" ? (
-          <InputBox name="fullname" type="text" placeholder="Full Name" />
-        ) : null}
-        <InputBox
-          name="email"
-          type="email"
-          placeholder="Enter your email address"
-        />
-        <InputBox
-          name="password"
-          type="password"
-          placeholder="Enter your password"
-        />
+          {type !== "signin" ? (
+            <InputBox name="fullname" type="text" placeholder="Full Name" />
+          ) : null}
+          <InputBox
+            name="email"
+            type="email"
+            placeholder="Enter your email address"
+          />
+          <InputBox
+            name="password"
+            type="password"
+            placeholder="Enter your password"
+          />
 
-        <div className="my-6 flex justify-center">
-          <ReCAPTCHA sitekey={import.meta.env.VITE_SITE_KEY} ref={recaptcha} />
-        </div>
+          <div className="my-6 flex justify-center">
+            <ReCAPTCHA
+              sitekey={import.meta.env.VITE_SITE_KEY}
+              ref={recaptcha}
+            />
+          </div>
 
-        <button className="btn-dark" type="submit">
-          {type.replace("-", " ")}
-        </button>
+          <button className="btn-dark" type="submit">
+            {type.replace("-", " ")}
+          </button>
 
-        <div className="relative w-full flex items-center gap-2 my-10 opacity-20 uppercase text-black font-bold">
-          <hr className="w-1/2 border-black" />
-          <p>or</p>
-          <hr className="w-1/2 border-black" />
-        </div>
+          <div className="relative w-full flex items-center gap-2 my-10 opacity-20 uppercase text-black font-bold">
+            <hr className="w-1/2 border-black" />
+            <p>or</p>
+            <hr className="w-1/2 border-black" />
+          </div>
 
-        
-        <button
-          type="button"
-          className="btn-secondary flex items-center justify-center gap-4">
-          <FaGoogle className="w-5" alt="" />
-          Continue with Google
-        </button>
-        
+          <button
+            type="button"
+            className="btn-secondary flex items-center justify-center gap-4">
+            <FaGoogle className="w-5" alt="" />
+            Continue with Google
+          </button>
 
-        {type === "signin" ? (
-          <p className="mt-6 text-gray-500 text-xl text-center">
-            Don't have an account?
-            <Link to="/signup" className="underline text-black text-xl ml-1">
-              Sign Up
-            </Link>
-          </p>
-        ) : (
-          <p className="mt-6 text-gray-500 text-xl text-center">
-            Already have an account?
-            <Link to="/signin" className="underline text-black text-xl ml-1">
-              Sign In
-            </Link>
-          </p>
-        )}
-      </form>
-    </section>
+          {type === "signin" ? (
+            <p className="mt-6 text-gray-500 text-xl text-center">
+              Don't have an account?
+              <Link to="/signup" className="underline text-black text-xl ml-1">
+                Sign Up
+              </Link>
+            </p>
+          ) : (
+            <p className="mt-6 text-gray-500 text-xl text-center">
+              Already have an account?
+              <Link to="/signin" className="underline text-black text-xl ml-1">
+                Sign In
+              </Link>
+            </p>
+          )}
+        </form>
+      </section>
+    </PageAnimation>
   );
 };
 
