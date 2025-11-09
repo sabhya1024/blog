@@ -20,7 +20,6 @@ const fakeApiLogin = (email, password) => {
           },
         });
       } else {
-        
         console.log("Simulating 200 OK Response");
         resolve({
           status: 200,
@@ -31,16 +30,14 @@ const fakeApiLogin = (email, password) => {
   });
 };
 
-
 const UserAuth = ({ type }) => {
   const recaptcha = useRef(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
 
     const token = recaptcha.current.getValue();
-
     if (!token) {
       alert("Please complete the reCAPTCHA");
       return;
@@ -50,58 +47,44 @@ const UserAuth = ({ type }) => {
     const data = Object.fromEntries(formData.entries());
     data.token = token;
 
-    if (type === 'signup') {
-      console.log(`form data to send to backend(signup) : ${data}`);
-      // i will ADD an API call here
+    if (type === "signup") {
+      console.log("Form data to send to backend (signup):", data);
+      // Add API call here later
       recaptcha.current.reset();
-      navigate('/please-verify');
-    }
-    else {
+      navigate("/please-verify");
+    } else {
       try {
         const response = await fakeApiLogin(data.email, data.password);
-
         console.log("Login success", response.data);
         recaptcha.current.reset();
-        navigate('/');
-      }
-      catch (error){
-        console.error("Login failed: ", error);
-
+        navigate("/");
+      } catch (error) {
+        console.error("Login failed:", error);
         if (error.response?.status === 429) {
-          alert(`Too many failed attempts. Please verify identity.`);
-          navigate('/enter-otp', { state: { email: data.email } });
+          alert("Too many failed attempts. Please verify identity.");
+          navigate("/enter-otp", { state: { email: data.email } });
         } else {
-          alert(`Invalid email or password`);
+          alert("Invalid email or password");
         }
         recaptcha.current.reset();
       }
     }
-
-    // TODO: Send 'data' (email, password, token) to the BAckend server
-    // for verification.
-
   };
-  
 
   return (
     <PageAnimation keyValue={type}>
       <section className="min-h-screen flex items-center justify-center py-10 md:py-20">
         <form className="w-[80%] max-w-[400px]" onSubmit={handleSubmit}>
-          <h1
-            className="
-            text-4xl 
-            font-georgia 
-            text-center 
-            capitalize 
-            mb-10
-            text-black
-          ">
+          <h1 className="text-4xl font-georgia text-center capitalize mb-10 text-black">
             {type === "signin" ? "Login to your account" : "Create new account"}
           </h1>
 
-          {type !== "signin" ? (
-            <InputBox name="fullname" type="text" placeholder="Full Name" />
-          ) : null}
+          {type !== "signin" && (
+            <>
+              <InputBox name="fullname" type="text" placeholder="Full Name" />
+            </>
+          )}
+
           <InputBox
             name="email"
             type="email"
@@ -132,8 +115,8 @@ const UserAuth = ({ type }) => {
 
           <button
             type="button"
-            className="btn-secondary flex items-center justify-center gap-4">
-            <FaGoogle className="w-5" alt="" />
+            className="flex w-full gap-4 items-center justify-center text-white bg-neutral-100 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-full text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700">
+            <FaGoogle className="w-5 h-5" />
             Continue with Google
           </button>
 

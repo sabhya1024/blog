@@ -11,7 +11,7 @@ const PageAnimation = ({children, initial={opacity:0}, animate= {opacity:1}, tra
           animate={animate}
           transition={transition}
           className={className}>
-          {/* framework motion */}
+          
           {children}
         </motion.div>
       </AnimatePresence>

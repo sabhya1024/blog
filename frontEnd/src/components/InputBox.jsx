@@ -6,14 +6,17 @@ import { IoMdEye } from "react-icons/io";
 import { MdOutlineMail } from "react-icons/md";
 import { TbLockPassword } from "react-icons/tb"; // 1. 
 
+
+
 const InputBox = ({ name, type, id, value, placeholder }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
 
-  // selecting correct icon
+
   let leftIcon = null;
   if (name === "fullname") {
     leftIcon = <FaUser className="input-icon left-4" />;
-  } else if (name === "email") {
+  }
+  else if (name === "email") {
     leftIcon = <MdOutlineMail className="input-icon left-4" />;
   } else if (name === "password") {
     leftIcon = <TbLockPassword className="input-icon left-4" />;
@@ -24,11 +27,11 @@ const InputBox = ({ name, type, id, value, placeholder }) => {
   let paddingRight = "pr-4";
 
   if (leftIcon) {
-    paddingLeft = "pl-16"; // More padding if there's a left icon
+    paddingLeft = "pl-16"; 
   }
 
   if (type === "password") {
-    paddingRight = "pr-12"; // More padding if there's a right icon
+    paddingRight = "pr-12"; 
   }
 
   return (
