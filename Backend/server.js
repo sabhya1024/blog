@@ -1,10 +1,12 @@
 import express from "express";
 import dotenv from "dotenv";
-import jsonwebtoken from "jsonwebtoken"
+import jsonwebtoken from "jsonwebtoken";
 import { nanoid } from "nanoid";
 import mongoose from "mongoose";
-import helmet from "helmet"
+import helmet from "helmet";
 import argon2, { argon2id, hash } from "argon2";
+import cors from "cors";
+
 // import rateLimit from "express-rate-limit"
 import CONNECT_DB from "./src/config/db.js";
 
@@ -17,15 +19,17 @@ dotenv.config();
 const PORT = process.env.PORT;
 
 const app = express();
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+  })
+);
 app.use(express.json());
-app.use(helmet());
-
-
+// app.use();
 
 let emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 let passwordRegex =
   /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,20}$/;
-
 
 const verifyCaptcha = async (token) => {
   const response = await fetch(
@@ -35,20 +39,23 @@ const verifyCaptcha = async (token) => {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
         secret: process.env.VITE_SECRET_KEY,
-        response:token,
+        response: token,
       }),
     }
   );
 
   const data = await response.json();
   return data.success;
-}
+};
 
 const formatDataToSend = (user) => {
-  const access_token = jsonwebtoken.sign({
-    id: user._id,
-  }, process.env.JWT_ENC,
-  {expiresIn: "15m"})
+  const access_token = jsonwebtoken.sign(
+    {
+      id: user._id,
+    },
+    process.env.JWT_ENC,
+    { expiresIn: "15m" }
+  );
 
   return {
     access_token,
@@ -82,25 +89,29 @@ app.post("/signup", async (req, res) => {
     if (fullname.length < 3) {
       return res
         .status(403)
-        .json({ Error: "Full Name must be atleast 3 letters long" });
+        .json({ error: "Full Name must be atleast 3 letters long" });
     }
 
     if (!email.length) {
-      return res.status(403).json({ Error: "Email can't be empty. " });
+      return res.status(403).json({ error: "Email can't be empty. " });
     }
 
     if (!emailRegex.test(email)) {
-      return res.status(403).json({ Error: "Enter a valid email. " });
+      return res.status(403).json({ error: "Enter a valid email. " });
     }
 
     if (!passwordRegex.test(password)) {
-      return res
-        .status(403)
-        .json({
-          Error:
-            "Password must contain: uppercase, lowercase, number, special character (8-20 chars)",
-        });
+      return res.status(403).json({
+        error:
+          "Password must contain: uppercase, lowercase, number, special character (8-20 chars)",
+      });
     }
+
+    const emailExists = await User.exists({ "personal_info.email": email });
+    if (emailExists) {
+      return res.status(400).json({error: "Email already exists. "})
+    }
+
     const hashedPassword = await argon2.hash(password, {
       type: argon2.argon2id,
       memoryCost: 2 ** 16, // 64MB
@@ -119,52 +130,48 @@ app.post("/signup", async (req, res) => {
       },
     });
 
-    if (User)
-      await user
-        .save()
-        .then((U) => {
-          return res.status(200).json(formatDataToSend(U));
-        })
-        .catch((error) => {
-          if (error.code === 11000) {
-            return res.status(500).json({ Error: "email already exists" });
-          }
-          return res
-            .status(500)
-            .json({ "Error ": " can't connect to server." });
-        });
+    try {
+      const savedUser = await user.save();
+      return res.status(200).json(formatDataToSend(savedUser));
+    } catch (error) {
+      if (error.code === 11000) {
+        return res.status(400).json({ error: "Email already exists" });
+      }
+      return res.status(500).json({ error: "Can't connect to server" });
+    }
   } catch (error) {
     // console.error("Signup error:", error);
-    return res.status(500).json({ Error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-app.post('/signin', async (req, res) => {
+app.post("/signin", async (req, res) => {
   try {
-    let { email, password, token } = req.body
+    let { email, password, token } = req.body;
     const isHuman = await verifyCaptcha(token);
     if (!isHuman) {
       return res.status(400).json({ error: "reCAPTCHA verification failed" });
     }
-    const user = await User.findOne({ "personal_info.email": email })
-      
+    const user = await User.findOne({ "personal_info.email": email });
+
     if (!user) {
-      return res.status(401).json({ status: "Invalid email or password" });
+      return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    const isValidPassword = await argon2.verify(user.personal_info.password, password)
+    const isValidPassword = await argon2.verify(
+      user.personal_info.password,
+      password
+    );
     if (!isValidPassword) {
-      return res.status(401).json({ status: "Invalid email or password" });
+      return res.status(401).json({ error: "Invalid email or password" });
     }
 
-  
-    return res.json(formatDataToSend(user))
-  }
-  catch (error) {
+    return res.json(formatDataToSend(user));
+  } catch (error) {
     console.log(error);
     return res.status(500).json({ error: "Internal server error" });
   }
-})
+});
 CONNECT_DB().then(() => {
   app.listen(PORT, () => {
     console.log(`Server started on port: ${PORT}`);
