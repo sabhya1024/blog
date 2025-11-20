@@ -6,7 +6,7 @@
 
 <h2>Core Technologies<h2>
 <ul>
-<li>Backend: Node.js, Express.js, MongoDB (Mongoose), Firebase Admin SDK (for Google Auth). </li>
+<li>Backend: </li>Node.js, Express.js, MongoDB (Mongoose), Firebase Admin SDK (for Google Auth). 
 
 <li>Security: Argon2id, JWT (HttpOnly Cookies), Express Rate Limiter, Helmet. </li>
 
