@@ -8,6 +8,6 @@ const router = express.Router();
 router.post("/create-blog", verifyJWT, createBlog);
 
 //public route
-router.post("/latest-blogs", getLatestBlogs);
+router.get("/latest-blogs", getLatestBlogs);
 
 export default router;
