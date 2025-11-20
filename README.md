@@ -4,9 +4,9 @@
 
 <p>The Secure MERN Blog Platform is a full-stack application built for publishing articles, technical write-ups, and CTF solutions, with an extreme focus on modern application security practices. The architecture is modular (MVC) and designed for horizontal scaling and data integrity. </p>
 
-<h2>Core Technologies<h2>
+<h2>Core Technologies</h2>
 <ul>
-<li>Backend: </li>Node.js, Express.js, MongoDB (Mongoose), Firebase Admin SDK (for Google Auth). 
+<li>Backend: Node.js, Express.js, MongoDB (Mongoose), Firebase Admin SDK (for Google Auth). </li>
 
 <li>Security: Argon2id, JWT (HttpOnly Cookies), Express Rate Limiter, Helmet. </li>
 
