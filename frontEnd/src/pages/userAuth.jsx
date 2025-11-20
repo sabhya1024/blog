@@ -4,12 +4,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaGoogle } from "react-icons/fa";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useContext, useRef, useState } from "react";
-import PageAnimation from "../common/PageAnimation";
+import AnimationWrapper from "../common/AnimationWrapper";
 import { Toaster, toast } from "react-hot-toast";
 import { storeInSession } from "../common/session";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { UserContext } from "../App";
-
+import { authWithGoogle } from "../common/firebase";
+import { useEffect } from "react";
 
 const domain = import.meta.env.VITE_SERVER_DOMAIN;
 let emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -17,9 +18,8 @@ let passwordRegex =
   /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,20}$/;
 
 const UserAuth = ({ type }) => {
-  let { userAuth: { access_token },
-  setUserAuth} = useContext(UserContext)
-
+  const { userAuth, setUserAuth } = useContext(UserContext);
+  const { access_token } = userAuth || {};
 
   const [loading, setLoading] = useState(false);
 
@@ -31,14 +31,14 @@ const UserAuth = ({ type }) => {
   // axios return a JSON object named response...
   const userAuthThroughServer = async (serverRoute, formData) => {
     try {
-      const response = await axios.post(domain + serverRoute, formData);
+      const { data } = await axios.post(domain + serverRoute, formData);
+
       toast.success(`${type === "signin" ? "Login" : "Signup"} sucessful!`);
 
       // storing sessions
-      storeInSession("user", response.data.token);
-      setUserAuth(response.data);
-      return response.data;
-
+      storeInSession("user", JSON.stringify(data));
+      setUserAuth(data);
+      return data;
     } catch (error) {
       if (error.response) {
         toast.error("Authentication failed.");
@@ -114,17 +114,44 @@ const UserAuth = ({ type }) => {
 
       if (type === "signup") {
         navigate("/please-verify");
-      } else {
-        navigate("/");
       }
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    access_token ? navigate('/') :
-    <PageAnimation keyValue={type}>
+  const handleGoogleAuth = async (e) => {
+    e.preventDefault();
+    if (loading) return;
+    setLoading(true);
+
+    try {
+      const user = await authWithGoogle();
+      if (user) {
+        const idToken = await user.getIdToken(true);
+
+        let serverRoute = "/google-auth";
+        let formData = {
+          access_token: idToken,
+        };
+        await userAuthThroughServer(serverRoute, formData);
+      }
+    } catch (error) {
+      toast.error("Trouble login through google");
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (access_token) {
+      navigate("/");
+    }
+  }, [access_token, navigate]);
+
+  return access_token ? null : (
+    <AnimationWrapper keyValue={type}>
       <section className="min-h-screen flex items-center justify-center py-10 md:py-20">
         <form className="w-[80%] max-w-[400px]" ref={authForm}>
           <h1 className="text-4xl font-georgia text-center capitalize mb-10 text-black">
@@ -181,7 +208,8 @@ const UserAuth = ({ type }) => {
           <button
             type="button"
             className="flex w-full gap-4 items-center justify-center text-white bg-neutral-100 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-full text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
-            disabled={loading}>
+            disabled={loading}
+            onClick={handleGoogleAuth}>
             <FaGoogle className="w-5 h-5" />
             Continue with Google
           </button>
@@ -203,7 +231,7 @@ const UserAuth = ({ type }) => {
           )}
         </form>
       </section>
-    </PageAnimation>
+    </AnimationWrapper>
   );
 };
 

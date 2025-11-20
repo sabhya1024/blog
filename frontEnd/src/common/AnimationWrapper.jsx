@@ -2,7 +2,7 @@ import React, { children } from 'react'
 import { animate, AnimatePresence, motion } from 'framer-motion'
 
 
-const PageAnimation = ({children, initial={opacity:0}, animate= {opacity:1}, transition={duration: 1}, keyValue, className }) => {
+const AnimationWrapper = ({children, initial={opacity:0}, animate= {opacity:1}, transition={duration: 1}, keyValue, className }) => {
     return (
       <AnimatePresence>
         <motion.div
@@ -18,4 +18,4 @@ const PageAnimation = ({children, initial={opacity:0}, animate= {opacity:1}, tra
     );
 }
 
-export default PageAnimation
+export default AnimationWrapper

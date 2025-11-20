@@ -1,11 +1,45 @@
 import { Link, Outlet } from "react-router-dom";
 import logo from "../assets/images/logo.png";
 import { CiSearch } from "react-icons/ci";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { RiFileEditLine } from "react-icons/ri";
+import { UserContext } from "../App";
+import { IoNotificationsOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import UserNavigationPanel from "./UserNavigation.component";
 
 const Navbar = () => {
   const [searchBoxVisibility, setSearchBoxVisibility] = useState(false);
+
+  const { userAuth } = useContext(UserContext);
+  const { access_token, profile_img } = userAuth || {};
+
+  const [userNavPanel, setUserNavPanel] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleUserNavPanel = () => {
+    setUserNavPanel((currentVal) => !currentVal);
+  };
+
+  const handleBlur = () => {
+    setTimeout(() => {
+      setUserNavPanel(false);
+    }, 100);
+  };
+
+  useEffect(() => {
+    if (!access_token) {
+      const protectedRoutes = ["/editor", "/settings", "/dashboard"];
+
+      if (
+        protectedRoutes.some((route) => location.pathname.startsWith(route))
+      ) {
+        navigate("/");
+      }
+    }
+  }, [access_token, navigate, location.pathname]);
 
   return (
     <>
@@ -55,17 +89,47 @@ const Navbar = () => {
             <p>Write</p>
           </Link>
 
-          <Link
-            className="bg-black text-white px-5 py-2 rounded-full hover:bg-gray-800 transition-colors"
-            to="/signin">
-            Sign-In
-          </Link>
+          {access_token ? (
+            <>
+              <Link to="/dashboard/notification">
+                <button className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 hover:bg-black transition-colors">
+                  <IoNotificationsOutline className="text-2xl text-gray-700" />
+                </button>
+              </Link>
 
-          <Link
-            className="bg-gray-200 text-black px-5 py-2 rounded-full hover:bg-gray-300 transition-colors hidden md:block"
-            to="/signup">
-            Sign-Up
-          </Link>
+              <div
+                className="relative"
+                onClick={handleUserNavPanel}
+                onBlur={handleBlur}>
+                <button className="w-12 h-12 mt-1">
+                  <img
+                    src={profile_img}
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                </button>
+
+                {userNavPanel ? (
+                  <UserNavigationPanel></UserNavigationPanel>
+                ) : (
+                  ""
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <Link
+                className="bg-black text-white px-5 py-2 rounded-full hover:bg-gray-800 transition-colors"
+                to="/signin">
+                Sign-In
+              </Link>
+
+              <Link
+                className="bg-gray-200 text-black px-5 py-2 rounded-full hover:bg-gray-300 transition-colors hidden md:block"
+                to="/signup">
+                Sign-Up
+              </Link>
+            </>
+          )}
         </div>
       </nav>
 

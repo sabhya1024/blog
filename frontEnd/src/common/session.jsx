@@ -11,6 +11,7 @@ const removeFromSession = (key) => {
 }
 
 const logOutUser = () => {
+    console.log('logout done');
     return sessionStorage.clear();
 }
 
